@@ -13,9 +13,27 @@ import {
   Button,
   Image,
   Alert,
+  TouchableOpacity,
 } from 'react-native';
 
-import Drawer from 'react-native-drawer';
+import {
+  Scene,
+  Router,
+  Actions,
+  Reducer,
+  ActionConst,
+  Overlay,
+  Tabs,
+  Modal,
+  Drawer,
+  Stack,
+  Lightbox,
+} from 'react-native-router-flux';
+import Top from './Top';
+import Detail from './Detail';
+import Setting from './Setting';
+
+import RNDrawer from 'react-native-drawer';
 
 const instructions = Platform.select({
   ios: 'Press Cmd+R to reload,\nCmd+D or shake for dev menu',
@@ -28,15 +46,10 @@ type Props = {};
 export default class App extends Component < Props > {
   constructor(props) {
     super();
-    this.onPressStateChangeButton = this.onPressStateChangeButton.bind(this);
-    this.onPressAlertButton = this.onPressAlertButton.bind(this);
     this.closeControlPanel = this.closeControlPanel.bind(this);
     this.openControlPanel = this.openControlPanel.bind(this);
+    this.onPressMenuButton = this.onPressMenuButton.bind(this);
   }
-
-  state = {
-    test: "",
-  };
 
   closeControlPanel() {
     this._drawer.close();
@@ -47,19 +60,40 @@ export default class App extends Component < Props > {
 
   render() {
 
-    const ControlPanel = () => {
+    const Header = () => {
       return (
-        <View style={styles.controlPanel}>
-          <Text style={styles.controlPanelItem}>hogehogehoge</Text>
+        <View style={styles.header}>
+          <View style={styles.headerItem}>
+            <Text onClick={() => {Actions.setting()}}>menu1</Text>
+          </View>
+          <Text style={styles.headerItem}>menu2</Text>
+          <Text style={styles.headerItem}>menu3</Text>
+          <View style={styles.headerMenuButton}>
+            <TouchableOpacity onPress={this.onPressMenuButton}>
+              <Text style={styles.headerMenuText}>■</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      );
+    };
+
+    const Menu = () => {
+      return (
+        <View style={styles.menu}>
+          <Text>test</Text>
+          <Text>test</Text>
+          <Text>test</Text>
+          <Text>test</Text>
+          <Text>test</Text>
         </View>
       );
     };
 
     return (
-      <Drawer
+      <RNDrawer
         type="overlay"
         ref={(ref) => this._drawer = ref}
-        content={<ControlPanel />}
+        content={<Menu />}
         tapToClose={true}
         openDrawerOffset={0.5} // 20% gap on the right side of drawer
         panCloseMask={0.5}
@@ -69,60 +103,20 @@ export default class App extends Component < Props > {
           main: { opacity:(2-ratio)/2 }
         })}
       >
-        <View style={styles.container}>
-          <Text style={styles.welcome}>
-            Welcome to React Native!!
-          </Text>
-          <Text style={styles.instructions}>
-            To get started, edit App.js
-          </Text>
-          <Text style={styles.instructions}>
-            {instructions}
-          </Text>
-          <Button
-            onPress={this.onPressStateChangeButton}
-            title="State Change"
-            color="#841584" />
-          <View style={styles.button}>
-            <Button
-              onPress={this.onPressAlertButton}
-              title="Alert"
-              color="#841584" />
-          </View>
-          <Button
-              onPress={this.openControlPanel}
-              title="OpenMenu"
-              color="red" />
-          <Text>
-            {this.state.test}
-          </Text>
-          <Image
-            source={{uri: 'https://placehold.it/200x200'}}
-            style={{width: 200, height: 200}} />
-        </View>
-      </Drawer>
+        <Header />
+        <Router>
+          <Stack key="root">
+            <Scene key="top" component={Top} title="Top" hideNavBar={true} />
+            <Scene key="detail" component={Detail} title="detail" />
+            <Scene key="setting" component={Setting} title="setting" />
+          </Stack>
+        </Router>
+      </RNDrawer>
     );
   }
 
-  onPressStateChangeButton() {
-    debugger;
-    console.log("pushpush");
-    this.setState({
-      test: 'pushed!!'
-    });
-  }
-
-  onPressAlertButton() {
-    Alert.alert(
-      'Alert Title',
-      'My Alert Msg',
-      [
-        {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-        {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-        {text: 'OK', onPress: () => console.log('OK Pressed')},
-      ],
-      { cancelable: false }
-    )
+  onPressMenuButton() {
+    this.openControlPanel();
   }
 }
 
@@ -132,30 +126,28 @@ const drawerStyles = {
 };
 
 const styles = StyleSheet.create({
-  controlPanel: {
+  header: {
+    // flex: 0.1,
+    // flexDirection: 'row',
+    // justifyContent: 'center',
+    // alignItems: 'center',
+    height: 50,
   },
-  controlPanelItem: {
+  headerItem: {
+    height: 5,
   },
-  container: {
+  headerMenuButton: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    width: 50,
+    height: 50,
+  },
+  headerMenuText: {
+    fontSize: 40,
+  },
+  menu: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f1f1f1'
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5
-  },
-  button: {
-    borderRadius: 4,
-    borderWidth: 0.5,
-    borderColor: 'red',
-    backgroundColor: 'blue',
+    flexDirection: 'column',
   },
 });
